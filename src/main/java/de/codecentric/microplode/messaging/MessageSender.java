@@ -7,13 +7,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageSender {
 
-    final static String queueName = "microplode-topic";
+    final static String queueNamePlayingField = "microplode-newgame-event-playingfield";
+
+    final static String queueNameComputerPlayer = "microplode-newgame-event-computerplayer";
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
     public void sendMessage(String msg) throws Exception {
         System.out.println("Sending message...");
-        rabbitTemplate.convertAndSend(queueName, msg);
+        rabbitTemplate.convertAndSend(queueNameComputerPlayer, msg);
+        rabbitTemplate.convertAndSend(queueNamePlayingField, msg);
     }
 }
