@@ -1,18 +1,17 @@
 package de.codecentric.microplode;
 
-import org.springframework.amqp.core.*;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import java.util.Arrays;
-import java.util.List;
+
+import de.codecentric.microplode.domain.Game;
 
 @SpringBootApplication
 public class GameServiceApplication  {
@@ -44,5 +43,10 @@ public class GameServiceApplication  {
 
     public static void main(String[] args) {
         SpringApplication.run(GameServiceApplication.class, args);
+    }
+    
+    @Bean
+    public Game game() {
+        return new Game();
     }
 }
