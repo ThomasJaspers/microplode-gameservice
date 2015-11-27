@@ -1,37 +1,46 @@
 package de.codecentric.microplode;
 
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
-
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 public class GameServiceApplication  {
 
-    final static String queueName = "microplode-topic";
+    final static String queueNamePlayingField = "microplode-newgame-event-playingfield";
+
+    final static String queueNameComputerPlayer = "microplode-newgame-event-computerplayer";
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName, false);
+    Queue queuePlayingField() {
+        return new Queue(queueNamePlayingField, false);
     }
 
     @Bean
-    TopicExchange exchange() {
-        return new TopicExchange("microplode-topic-exchange");
+    Queue queueComputerPlayer() {
+        return new Queue(queueNameComputerPlayer, false);
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(queueName);
+    FanoutExchange exchange() {
+        return new FanoutExchange("microplode-topic-gameservice-exchange");
     }
 
+    @Bean
+    List<Binding> binding() {
+        return Arrays.asList(BindingBuilder.bind(queuePlayingField()).to(exchange()),
+                BindingBuilder.bind(queueComputerPlayer()).to(exchange()));
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(GameServiceApplication.class, args);
