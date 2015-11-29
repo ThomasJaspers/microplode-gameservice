@@ -1,19 +1,11 @@
-package de.codecentric.microplode.domain;
+package de.codecentric.microplode.messaging.api;
 
-import de.codecentric.microplode.messaging.api.PlayerType;
 
-public class Player {
+public class PlayerDef {
 
-    private String name;
     private String id;
     private PlayerType type;
     
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
     public String getId() {
         return id;
     }

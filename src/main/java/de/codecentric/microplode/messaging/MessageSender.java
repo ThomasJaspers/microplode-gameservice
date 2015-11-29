@@ -1,22 +1,25 @@
 package de.codecentric.microplode.messaging;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import de.codecentric.microplode.configuration.MessagingConfiguration;
 
 @Component
 public class MessageSender {
 
-    final static String queueNamePlayingField = "microplode-newgame-event-playingfield";
-
-    final static String queueNameComputerPlayer = "microplode-newgame-event-computerplayer";
-
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    
+    @Autowired
+    private MessageConverter jsonMessageConverter;
 
-    public void sendMessage(String msg) throws Exception {
+    public void sendMessage(Object msg) throws Exception {
         System.out.println("Sending message...");
-        rabbitTemplate.convertAndSend(queueNameComputerPlayer, msg);
-        rabbitTemplate.convertAndSend(queueNamePlayingField, msg);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter);
+        rabbitTemplate.convertAndSend(MessagingConfiguration.QUEUE_NAME_COMPUTER_PLAYER, msg);
+        rabbitTemplate.convertAndSend(MessagingConfiguration.QUEUE_NAME_PLAYING_FIELD, msg);
     }
 }
