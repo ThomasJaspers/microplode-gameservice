@@ -5,6 +5,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import de.codecentric.microplode.common.MessageUtil;
 import de.codecentric.microplode.configuration.MessagingConfiguration;
 
 @Component
@@ -16,10 +17,12 @@ public class MessageSender {
     @Autowired
     private MessageConverter jsonMessageConverter;
 
-    public void sendMessage(Object msg) throws Exception {
+    public void sendMessage(String queueName, Object msg) {
         System.out.println("Sending message...");
+        MessageUtil.printJson2Console(msg);
         rabbitTemplate.setMessageConverter(jsonMessageConverter);
-        rabbitTemplate.convertAndSend(MessagingConfiguration.QUEUE_NAME_COMPUTER_PLAYER, msg);
-        rabbitTemplate.convertAndSend(MessagingConfiguration.QUEUE_NAME_PLAYING_FIELD, msg);
+        rabbitTemplate.convertAndSend(queueName, msg);
     }
+    
+    
 }

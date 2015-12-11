@@ -1,23 +1,15 @@
 package de.codecentric.microplode.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import de.codecentric.microplode.configuration.Queues;
 import de.codecentric.microplode.domain.Game;
 import de.codecentric.microplode.messaging.MessageSender;
 import de.codecentric.microplode.messaging.api.Event;
-import de.codecentric.microplode.messaging.api.EventType;
-import de.codecentric.microplode.messaging.api.PlayerDef;
-import de.codecentric.microplode.messaging.api.PlayerType;
 
 
-@RestController
-@RequestMapping("/gameservice")
+@Controller
 public class GameServiceController {
 
     @Autowired
@@ -26,38 +18,19 @@ public class GameServiceController {
     @Autowired
     private Game game;
 
-    @RequestMapping(value="/trigger-action", method=RequestMethod.GET)
-    public @ResponseBody String triggerAction() throws Exception{
-        messageSender.sendMessage("Trigger Action");
+    public String triggerAction() {
+        messageSender.sendMessage(Queues.GENERAL_TOPIC_NAME, "Trigger Action");
         return "TriggerAction Called";
     }
     
-    @RequestMapping(value="/start-new-game", method=RequestMethod.GET)
-    public @ResponseBody String startNewGame() throws Exception {
+    public String startNewGame(Event newGameEvent) {
         game.setStarted(true);
         
-        Event newGameEvent = buildEvent();
+        messageSender.sendMessage(Queues.QUEUE_NAME_COMPUTER_PLAYER, newGameEvent);
+        messageSender.sendMessage(Queues.QUEUE_NAME_PLAYING_FIELD, newGameEvent);
         
-        ObjectMapper mapper = new ObjectMapper();
-        System.out.println("Event: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(newGameEvent));
-        
-        messageSender.sendMessage(newGameEvent);
-        
-        return "Games started";
+        return "Game started";
     }
 
-    private Event buildEvent() {
-        Event newGameEvent = new Event();
-        newGameEvent.setType(EventType.NEW_GAME);
-        PlayerDef playerOne = new PlayerDef();
-        playerOne.setId("Kurt");
-        playerOne.setType(PlayerType.HUMAN);
-        newGameEvent.addPlayers(playerOne);
-        
-        PlayerDef playerTwo = new PlayerDef();
-        playerTwo.setId("HighEndMac");
-        playerTwo.setType(PlayerType.COMPUTER);
-        newGameEvent.addPlayers(playerTwo);
-        return newGameEvent;
-    }
+
 }
